@@ -1,10 +1,15 @@
 package com.vo.servicevod.service.impl;
 
+import com.aliyun.oss.ClientException;
 import com.aliyun.vod.upload.impl.UploadVideoImpl;
 import com.aliyun.vod.upload.req.UploadStreamRequest;
 import com.aliyun.vod.upload.resp.UploadStreamResponse;
+import com.aliyuncs.DefaultAcsClient;
+import com.aliyuncs.exceptions.ServerException;
+import com.aliyuncs.vod.model.v20170321.DeleteVideoRequest;
 import com.vo.servicebase.entity.VoCodeException;
 import com.vo.servicevod.service.VideoService;
+import com.vo.servicevod.utils.AliyunVodSDKUtils;
 import com.vo.servicevod.utils.ConstantPropertiesUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -43,6 +48,24 @@ public class VideoServiceImpl implements VideoService {
             return videoId;
         } catch (IOException e) {
             throw new VoCodeException(20001, "视频上传失败");
+        }
+    }
+
+    @Override
+    public void deleteVideo(String videoId) {
+        try {
+            DefaultAcsClient client = AliyunVodSDKUtils.initVodClient(
+                    ConstantPropertiesUtils.KEY_ID,
+                    ConstantPropertiesUtils.KEY_SECRET);
+
+            DeleteVideoRequest request = new DeleteVideoRequest();
+
+            request.setVideoIds(videoId);
+
+            client.getAcsResponse(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new VoCodeException(20001, "视频删除失败");
         }
     }
 }

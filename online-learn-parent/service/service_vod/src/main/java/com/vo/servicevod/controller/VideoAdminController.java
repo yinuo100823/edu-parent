@@ -25,4 +25,10 @@ public class VideoAdminController {
         String videoId = videoService.uploadVideo(file);
         return Resp.ok().message("视频上传成功").data("videoId", videoId);
     }
+
+    @DeleteMapping("delete/{videoId}")
+    public Resp deleteVideoById(@PathVariable String videoId) {
+        videoService.deleteVideo(videoId);
+        return Resp.ok().message("删除视频成功");
+    }
 }
