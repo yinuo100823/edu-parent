@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 @Service
 public class VideoServiceImpl implements VideoService {
@@ -62,6 +63,23 @@ public class VideoServiceImpl implements VideoService {
 
             request.setVideoIds(videoId);
 
+            client.getAcsResponse(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new VoCodeException(20001, "视频删除失败");
+        }
+    }
+
+    @Override
+    public void deleteVideoByIds(List<String> ids) {
+        try {
+            DefaultAcsClient client = AliyunVodSDKUtils.initVodClient(
+                    ConstantPropertiesUtils.KEY_ID,
+                    ConstantPropertiesUtils.KEY_SECRET);
+
+            DeleteVideoRequest request = new DeleteVideoRequest();
+            String videoIds = org.apache.commons.lang.StringUtils.join(ids, ",");
+            request.setVideoIds(videoIds);
             client.getAcsResponse(request);
         } catch (Exception e) {
             e.printStackTrace();

@@ -4,9 +4,12 @@ import com.vo.commonutils.Resp;
 import com.vo.servicevod.service.VideoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Api("阿里云视频点播微服务")
 @RestController
@@ -30,5 +33,11 @@ public class VideoAdminController {
     public Resp deleteVideoById(@PathVariable String videoId) {
         videoService.deleteVideo(videoId);
         return Resp.ok().message("删除视频成功");
+    }
+
+    @DeleteMapping("delete/more")
+    public Resp deleteVideoByIds(@RequestBody List<String> ids){
+        videoService.deleteVideoByIds(ids);
+        return Resp.ok();
     }
 }
