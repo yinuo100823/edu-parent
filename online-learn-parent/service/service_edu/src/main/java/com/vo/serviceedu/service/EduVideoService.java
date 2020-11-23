@@ -1,5 +1,6 @@
 package com.vo.serviceedu.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.vo.serviceedu.entity.EduVideo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -14,4 +15,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface EduVideoService extends IService<EduVideo> {
 
     void deleteVideoByCourseId(String courseId);
+
+    boolean deleteVideoByChapterId(String chapterId);
 }

@@ -2,9 +2,12 @@ package com.vo.serviceedu.controller;
 
 
 import com.vo.commonutils.Resp;
+import com.vo.servicebase.entity.VoCodeException;
+import com.vo.serviceedu.client.VodClient;
 import com.vo.serviceedu.entity.EduVideo;
 import com.vo.serviceedu.service.EduVideoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -22,6 +25,9 @@ public class EduVideoController {
 
     @Autowired
     private EduVideoService videoService;
+
+    @Autowired
+    private VodClient vodClient;
 
     @PostMapping("/add")
     public Resp addVideo(@RequestBody EduVideo eduVideo) {
@@ -49,6 +55,19 @@ public class EduVideoController {
      */
     @DeleteMapping("/delete/{videoId}")
     public Resp deleteVideoById(@PathVariable String videoId) {
+        //1.根据小节id：videoId等到视频的ID
+        String videoSourceId = videoService.getById(videoId).getVideoSourceId();
+        if (!StringUtils.isEmpty(videoSourceId)) {
+            try {
+                Resp resp = vodClient.deleteVideoById(videoSourceId);
+                if (resp.getCode() == 20001) {
+                    throw new VoCodeException(20001, "调用删除视频接口失败");
+                }
+            } catch (Exception e) {
+                throw new VoCodeException(20001, "调用删除视频接口失败:" + "/edu/vod/video/delete/" + videoSourceId);
+            }
+        }
+
         boolean removeFlag = videoService.removeById(videoId);
         return removeFlag ? Resp.ok() : Resp.error().message("删除小节失败");
     }

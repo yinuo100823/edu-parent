@@ -1,7 +1,9 @@
 package com.vo.serviceedu.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.vo.commonutils.Resp;
 import com.vo.servicebase.entity.VoCodeException;
+import com.vo.serviceedu.client.VodClient;
 import com.vo.serviceedu.entity.EduChapter;
 import com.vo.serviceedu.entity.EduVideo;
 import com.vo.serviceedu.entity.chapter.ChapterVo;
@@ -11,6 +13,7 @@ import com.vo.serviceedu.mapper.EduChapterMapper;
 import com.vo.serviceedu.service.EduChapterService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.vo.serviceedu.service.EduVideoService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +32,9 @@ import java.util.List;
 @Service
 public class EduChapterServiceImpl extends ServiceImpl<EduChapterMapper, EduChapter> implements EduChapterService {
     @Autowired
-    EduVideoService eduVideoService;
+    private EduVideoService eduVideoService;
+    @Autowired
+    private VodClient vodClient;
 
     @Override
     public List<ChapterVo> getAllChapterAndVideo(String courseId) {
@@ -69,16 +74,16 @@ public class EduChapterServiceImpl extends ServiceImpl<EduChapterMapper, EduChap
 
     @Override
     public Boolean deleteChapterById(String chapterId) {
-        //查询章节下有没有小节，如果有，则不允许删除，没有小节则进行删除
-        QueryWrapper<EduVideo> eduVideoQueryWrapper=new QueryWrapper<>();
-        eduVideoQueryWrapper.eq("chapter_id",chapterId);
-        int countVideo = eduVideoService.count(eduVideoQueryWrapper);
-        if (countVideo>0){
-            throw new VoCodeException(20001,"该章节下有小节，不允许删除");
-        }else{
-            int i = baseMapper.deleteById(chapterId);
-            return i>0;
+        //1.根据章节ID查询章节下小节
+        QueryWrapper<EduVideo> videoQueryWrapper = new QueryWrapper<>();
+        videoQueryWrapper.eq("chapter_id", chapterId);
+        //2.删除课程小节
+        boolean removeVideoFlag = eduVideoService.deleteVideoByChapterId(chapterId);
+        if (!removeVideoFlag) {
+            throw new VoCodeException(20001, "删除章节下小节失败");
         }
+        return this.removeById(chapterId);
+
     }
 
     @Override

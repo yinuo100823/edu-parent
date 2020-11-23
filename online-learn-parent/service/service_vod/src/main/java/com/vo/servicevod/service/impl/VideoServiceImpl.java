@@ -83,7 +83,7 @@ public class VideoServiceImpl implements VideoService {
             client.getAcsResponse(request);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new VoCodeException(20001, "视频删除失败");
+            throw new VoCodeException(20001, "批量视频删除失败");
         }
     }
 }
