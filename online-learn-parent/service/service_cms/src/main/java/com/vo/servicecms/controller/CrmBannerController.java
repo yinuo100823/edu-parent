@@ -99,11 +99,5 @@ public class CrmBannerController {
         boolean saveFlag = bannerService.removeById(bannerId);
         return saveFlag ? Resp.ok() : Resp.error();
     }
-
-    @GetMapping("/front/banner/list")
-    public Resp index() {
-        List<CrmBanner> banners = bannerService.selectIndexList();
-        return Resp.ok().data("data", banners);
-    }
 }
 
